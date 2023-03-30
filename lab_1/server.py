@@ -1,6 +1,7 @@
 import json
 import socket
 
+import db_handling
 import json_handling
 
 UDP_MAX_SIZE = 65535
@@ -42,15 +43,15 @@ def listen(host: str = '127.0.0.1', port: int = 3000):
 
         print(message.decode('ascii'))
 
-        # if str(addr[1]) + ' username' not in members:
-        #     members[str(addr[1]) + ' username'] = addr
-
         if not message:
             continue
 
         username_to_chat, msg = message.decode('ascii').split('~')
         interviewer_addr = json_handling.get_socket_using_username(username_to_chat)
-        # s.sendto(str(username_to_chat + ':\t' + msg).encode('ascii'), interviewer_addr)
+        user_from = json_handling.get_username_using_socket(addr)
+        db_handling.SaverMessageHistory.add_message(username_from=user_from,
+                                                    username_to=username_to_chat,
+                                                    message=msg)
         s.sendto(msg.encode('ascii'), interviewer_addr)
         print(f'after sending from {addr}')
 

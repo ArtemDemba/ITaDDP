@@ -4,6 +4,8 @@ class SaverMessageHistory:
     @classmethod
     def add_message(cls, username_from: str, username_to: str,  message: str) -> None:
         cls.__messages.append([username_from, username_to, message])
+        print('Message history: ')
+        print(cls.__messages)
 
     @classmethod
     def save_to_db(cls):
