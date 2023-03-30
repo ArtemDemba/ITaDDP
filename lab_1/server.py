@@ -1,6 +1,7 @@
 import json
 import socket
 
+import json_handling
 
 UDP_MAX_SIZE = 65535
 
@@ -30,11 +31,7 @@ def check_message_about_interviewer(message: bytes) -> tuple[str, int] or bool:
     return False
 
 
-interviewer_addr = ()
-
-
 def listen(host: str = '127.0.0.1', port: int = 3000):
-    global interviewer_addr
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     s.bind((host, port))
@@ -51,16 +48,10 @@ def listen(host: str = '127.0.0.1', port: int = 3000):
         if not message:
             continue
 
-        print('members: ', members)
-        is_check_message = check_initialize_message(message=message, addr=addr)
-        if is_check_message:
-            continue
-        is_message_about_interviewer = check_message_about_interviewer(message=message)
-        if is_message_about_interviewer:
-            interviewer_addr = is_message_about_interviewer
-            continue
-        print(f'before sending to {interviewer_addr}\nmessage: {message}')
-        s.sendto(message, interviewer_addr)
+        username_to_chat, msg = message.decode('ascii').split('~')
+        interviewer_addr = json_handling.get_socket_using_username(username_to_chat)
+        # s.sendto(str(username_to_chat + ':\t' + msg).encode('ascii'), interviewer_addr)
+        s.sendto(msg.encode('ascii'), interviewer_addr)
         print(f'after sending from {addr}')
 
 
